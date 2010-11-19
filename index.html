@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Delicious -2- Evernote</title></head>
+<html><head><title>Delicious -2- Evernote (v2)</title></head>
 <style type="text/css">
 #container{
 width:960px;
@@ -15,43 +15,7 @@ margin-bottom:0.75em;
 padding-bottom:0.5em;
 width:100%;
 }
-.bookmark{
-border-bottom:1px solid #D4D4D4;
-margin-bottom:1em;
 
-}
-.date{
-padding-bottom:0.2em;
-font-size:0.7em;
-text-align:right;
-}
-a{
-	color:#057EDE;
-	text-decoration: none;
-}
-.title{
-font-size:14pt;
-padding-bottom:0.4em;
-}
-.notes{
-margin:0.4em;
-font-family:Monaco, Console;
-font-size:12px;
-/*white-space:pre;*/
-background:#F6FACE;
-padding:1.5em;
-}
-.tags{
-margin:0.4em;
-}
-.tags span{
-padding:0.3em;
-background:#D4D4D4;
-float:right;
-margin:0.2em;
-
-
-}
 
 textarea{
 	background:#D4D4D4;
@@ -68,12 +32,12 @@ em{
 
 <body>
 <div id="container">
-<h1>Delicious -2- Evernote</h1>
+<h1>Delicious -2- Evernote <em>v2</em></h1>
 <div id="form">
 <em>Open terminal and run "curl https://USERNAME:PASSWORD@api.del.icio.us/v1/posts/all" </em>
 <p>Paste your XML output here </p>
 <textarea id="rss" rows="12" cols="120" style="width=100%"></textarea> <br />
-<input type="button" value="Evernote XML(.enex) please" id="btnParse" />
+<p><input type="button" value="Evernote XML(.enex) please" id="btnParse" /></p>
 </div>
 
 <div id="bmarks" style="display:none;">
@@ -87,6 +51,9 @@ em{
 	
 </script>
 <script type="text/javascript">
+
+
+
 function parsePls(){
 //http://code.jquery.com/jquery-latest.min.js
 
@@ -104,7 +71,7 @@ function parsePls(){
 	$(feed).find('post').each(function(i, elem){
 		
 		txt += '<note>';
-		txt += '<title>' + $(this).attr('description') + '</title>';
+		txt += '<title><![CDATA[' + $(this).attr('description') + ']]></title>';
 /*
 		if($(this).attr('extended')){
 			txt += '<div class="notes">' + $(this).attr('extended') + '</div>';
@@ -115,10 +82,18 @@ function parsePls(){
 		txtCTags = '';
 		txtContent = '';
 		tags = $(this).attr('tag').split(' ');
+		
 		for(j=0; j<tags.length; j++){
+				tags[j] = $.trim(tags[j]);
 				tags[j] = tags[j].replace(/(,)+/, '');	// remove exess , i had many in my bookmarks
+				tags[j] = tags[j].replace(/&/g, '-n-');	// replace & with -n- i have few tags with & symbol @TODO need to replace all not-well-formed xml chars
+				if(tags[j] == ""){
+					tags[j] = "misc";	//empty tag is not acceptable with evernote
+				}
 				txtTags += '<tag>'+ tags[j] +'</tag>';
 		}
+		
+	
 		
 		txtCTags = tags.join(', ');	
 			
@@ -133,17 +108,17 @@ function parsePls(){
 		txt += '<updated>' + time + '</updated>';
 		
 		txt += txtTags;
-		txt += '<note-attributes><source-url>' + '' + '</source-url></note-attributes>';
+		txt += '<note-attributes><source-url><![CDATA[' + $(this).attr('href') + ']]></source-url></note-attributes>'; //$(this).attr('href')
 		txt += '</note>'; 
 
 	});
 	txt += '</en-export>';
 	
 	
-	
+	$('#form').hide();	
 	$('#bmarks').show('fast');
 	$('#tenex').val(txt);
-	$('#form').hide('fast');
+
 }
 
 
