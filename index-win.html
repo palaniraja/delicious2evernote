@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Delicious -2- Evernote (v2)</title></head>
+<style type="text/css">
+#container{
+width:960px;
+margin:0 auto;
+font-family:Georgia,"Times New Roman",Times,serif;
+}
+
+h1{
+border-bottom:1px solid #333333;
+display:block;
+font-size:1.2em;
+margin-bottom:0.75em;
+padding-bottom:0.5em;
+width:100%;
+}
+
+
+textarea{
+	background:#D4D4D4;
+}
+em{
+	font-size:0.8em;
+	color:#A6A6A6;
+	text-align:right;
+}
+
+</style>
+
+
+
+<body>
+	<div id="container">
+	<h1>Delicious -2- Evernote <em>v2.2 (Windows)</em></h1>
+	<div id="form">
+	<em>Open terminal and run "curl https://USERNAME:PASSWORD@api.del.icio.us/v1/posts/all" </em>
+	<p>Paste your XML output here </p>
+	<textarea id="rss" rows="12" cols="120" style="width=100%"></textarea> <br />
+	<p><input type="button" value="Evernote XML(.enex) please" id="btnParse" /></p>
+	</div>
+
+	<div id="bmarks" style="display:none;">
+	<p>Save the XML below as a file with extension <strong>.enex</strong> eg., <strong>(mydelicious.enex)</strong> and import with your <strong>Evernote</strong> app.
+	</p>  
+	<textarea id="tenex" rows="20" cols="120" style="width=100%"></textarea>
+
+	</div>
+	</div>
+
+
+
+<script type="text/javascript" src="jquery.js">
+	
+</script>
+<script type="text/javascript">
+
+function parsePls(){
+//http://code.jquery.com/jquery-latest.min.js
+
+  feed = $('#rss').val();
+  if(!feed.length){
+    alert('Please paste your XML output from terminal');
+    return;
+  }
+  txt = '<?' + 'xml version="1.0" encoding="UTF-8"?><!DOCTYPE en-export SYSTEM "http://xml.evernote.com/pub/evernote-export.dtd"><en-export export-date="20101119T130311Z" application="Evernote" version="Evernote Mac 1.11.0 (99371)">';
+  
+  txtContent = '';
+  
+//  console.log($(feed).find('post').length);//
+  
+  $(feed).find('post').each(function(i, elem){
+    
+    txt += '<note>';
+    txt += '<title>' + $('<div/>').text($(this).attr('description')).html() + '</title>';
+/*
+    if($(this).attr('extended')){
+      txt += '<div class="notes">' + $(this).attr('extended') + '</div>';
+    }
+    */
+    
+    txtTags = '';
+    txtCTags = '';
+    txtContent = '';
+    tags = $(this).attr('tag').split(' ');
+    
+    for(j=0; j<tags.length; j++){
+        tags[j] = $.trim(tags[j]);
+        tags[j] = tags[j].replace(/(,)+/, '');  // remove exess , i had many in my bookmarks
+        tags[j] = tags[j].replace(/&/g, '&amp;');  // replace & with -n- i have few tags with & symbol @TODO need to replace all not-well-formed xml chars
+		tags[j] = $('<div/>').text(tags[j]).html();
+		
+        if(tags[j] == ""){
+          tags[j] = "misc";  //empty tag is not acceptable with evernote
+        }
+        txtTags += '<tag>'+ tags[j] +'</tag>';
+    }
+    
+  
+    
+    txtCTags = tags.join(', ');  
+      
+    txtContent += '<![CDATA[<?' + 'xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;"><div><font face="Georgia" size="6"><span style="font-size: 24px;"><a href="'+ $('<div/>').text($(this).attr('href')).html()  +'">'+ $('<div/>').text($(this).attr('description')).html() +'</a><br/></span></font></div><div><br/><br/><br/></div><pre>'+ $('<div/>').text($(this).attr('extended')).html() + '</pre><div><br/><br/><br/></div><div><hr/></div><div style="text-align: right;"><font color="#6A6A6A"><font face="Georgia"><font size="5"><span style="font-size: 18px;">'+ txtCTags +'</span></font></font></font></div></en-note>' + "\n" + ']]>';  
+
+    txt += '<content>' + txtContent + '</content>';
+    
+    time = $(this).attr('time');
+    time = time.replace(/-/g, '');
+    time = time.replace(/:/g, ''); //remove the delimeters
+    txt += '<created>' + time + '</created>';
+    txt += '<updated>' + time + '</updated>';
+    
+    txt += txtTags;
+    txt += '<note-attributes><source-url><![CDATA[' + $('<div/>').text($(this).attr('href')).html() + ']]></source-url></note-attributes>'; //$(this).attr('href')
+    txt += '</note>'; 
+
+  });
+  txt += '</en-export>';
+  
+  
+  $('#form').hide();  
+  $('#bmarks').show('fast');
+  $('#tenex').val(txt);
+
+}
+
+
+$(document).ready(function(){
+  $('#btnParse').click(parsePls);
+})
+
+</script>
+</body></html>
+
