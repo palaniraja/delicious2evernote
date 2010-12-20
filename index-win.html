@@ -54,7 +54,6 @@ em{
 	
 </script>
 <script type="text/javascript">
-
 function parsePls(){
 //http://code.jquery.com/jquery-latest.min.js
 
@@ -73,11 +72,7 @@ function parsePls(){
     
     txt += '<note>';
     txt += '<title>' + $('<div/>').text($(this).attr('description')).html() + '</title>';
-/*
-    if($(this).attr('extended')){
-      txt += '<div class="notes">' + $(this).attr('extended') + '</div>';
-    }
-    */
+
     
     txtTags = '';
     txtCTags = '';
@@ -88,8 +83,8 @@ function parsePls(){
         tags[j] = $.trim(tags[j]);
         tags[j] = tags[j].replace(/(,)+/, '');  // remove exess , i had many in my bookmarks
         tags[j] = tags[j].replace(/&/g, '&amp;');  // replace & with -n- i have few tags with & symbol @TODO need to replace all not-well-formed xml chars
-		tags[j] = $('<div/>').text(tags[j]).html();
-		
+    tags[j] = $('<div/>').text(tags[j]).html();
+    
         if(tags[j] == ""){
           tags[j] = "misc";  //empty tag is not acceptable with evernote
         }
@@ -112,7 +107,7 @@ function parsePls(){
     
     txt += txtTags;
     txt += '<note-attributes><source-url><![CDATA[' + $('<div/>').text($(this).attr('href')).html() + ']]></source-url></note-attributes>'; //$(this).attr('href')
-    txt += '</note>'; 
+    txt += '</note>';
 
   });
   txt += '</en-export>';
@@ -128,7 +123,6 @@ function parsePls(){
 $(document).ready(function(){
   $('#btnParse').click(parsePls);
 })
-
 </script>
 </body></html>
 
