@@ -31,101 +31,103 @@ em{
 
 
 <body>
-<div id="container">
-<h1>Delicious -2- Evernote <em>v2</em></h1>
-<div id="form">
-<em>Open terminal and run "curl https://USERNAME:PASSWORD@api.del.icio.us/v1/posts/all" </em>
-<p>Paste your XML output here </p>
-<textarea id="rss" rows="12" cols="120" style="width=100%"></textarea> <br />
-<p><input type="button" value="Evernote XML(.enex) please" id="btnParse" /></p>
-</div>
+	<div id="container">
+	<h1>Delicious -2- Evernote <em>v2.1</em></h1>
+	<div id="form">
+	<em>Open terminal and run "curl https://USERNAME:PASSWORD@api.del.icio.us/v1/posts/all" </em>
+	<p>Paste your XML output here </p>
+	<textarea id="rss" rows="12" cols="120" style="width=100%"></textarea> <br />
+	<p><input type="button" value="Evernote XML(.enex) please" id="btnParse" /></p>
+	</div>
 
-<div id="bmarks" style="display:none;">
-<p>Save the XML below as a file with extension <strong>.enex</strong> eg., <strong>(mydelicious.enex)</strong> and import with your <strong>Evernote</strong> app.
-</p>	
-<textarea id="tenex" rows="20" cols="120" style="width=100%"></textarea>
+	<div id="bmarks" style="display:none;">
+	<p>Save the XML below as a file with extension <strong>.enex</strong> eg., <strong>(mydelicious.enex)</strong> and import with your <strong>Evernote</strong> app.
+	</p>  
+	<textarea id="tenex" rows="20" cols="120" style="width=100%"></textarea>
 
-</div>
-</div>
+	</div>
+	</div>
+
+
+
 <script type="text/javascript" src="jquery.js">
 	
 </script>
 <script type="text/javascript">
 
-
-
 function parsePls(){
 //http://code.jquery.com/jquery-latest.min.js
 
-	feed = $('#rss').val();
-	if(!feed.length){
-		alert('Please paste your XML output from terminal');
-		return;
-	}
-	txt = '<?' + 'xml version="1.0" encoding="UTF-8"?><!DOCTYPE en-export SYSTEM "http://xml.evernote.com/pub/evernote-export.dtd"><en-export export-date="20101119T130311Z" application="Evernote" version="Evernote Mac 1.11.0 (99371)">';
-	
-	txtContent = '';
-	
-//	console.log($(feed).find('post').length);//
-	
-	$(feed).find('post').each(function(i, elem){
-		
-		txt += '<note>';
-		txt += '<title><![CDATA[' + $(this).attr('description') + ']]></title>';
+  feed = $('#rss').val();
+  if(!feed.length){
+    alert('Please paste your XML output from terminal');
+    return;
+  }
+  txt = '<?' + 'xml version="1.0" encoding="UTF-8"?><!DOCTYPE en-export SYSTEM "http://xml.evernote.com/pub/evernote-export.dtd"><en-export export-date="20101119T130311Z" application="Evernote" version="Evernote Mac 1.11.0 (99371)">';
+  
+  txtContent = '';
+  
+//  console.log($(feed).find('post').length);//
+  
+  $(feed).find('post').each(function(i, elem){
+    
+    txt += '<note>';
+    txt += '<title><![CDATA[' + $('<div/>').text($(this).attr('description')).html() + ']]></title>';
 /*
-		if($(this).attr('extended')){
-			txt += '<div class="notes">' + $(this).attr('extended') + '</div>';
-		}
-		*/
+    if($(this).attr('extended')){
+      txt += '<div class="notes">' + $(this).attr('extended') + '</div>';
+    }
+    */
+    
+    txtTags = '';
+    txtCTags = '';
+    txtContent = '';
+    tags = $(this).attr('tag').split(' ');
+    
+    for(j=0; j<tags.length; j++){
+        tags[j] = $.trim(tags[j]);
+        tags[j] = tags[j].replace(/(,)+/, '');  // remove exess , i had many in my bookmarks
+        tags[j] = tags[j].replace(/&/g, '&amp;');  // replace & with -n- i have few tags with & symbol @TODO need to replace all not-well-formed xml chars
+		tags[j] = $('<div/>').text(tags[j]).html();
 		
-		txtTags = '';
-		txtCTags = '';
-		txtContent = '';
-		tags = $(this).attr('tag').split(' ');
-		
-		for(j=0; j<tags.length; j++){
-				tags[j] = $.trim(tags[j]);
-				tags[j] = tags[j].replace(/(,)+/, '');	// remove exess , i had many in my bookmarks
-				tags[j] = tags[j].replace(/&/g, '-n-');	// replace & with -n- i have few tags with & symbol @TODO need to replace all not-well-formed xml chars
-				if(tags[j] == ""){
-					tags[j] = "misc";	//empty tag is not acceptable with evernote
-				}
-				txtTags += '<tag>'+ tags[j] +'</tag>';
-		}
-		
-	
-		
-		txtCTags = tags.join(', ');	
-			
-		txtContent += '<![CDATA[<?' + 'xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;"><div><font face="Georgia" size="6"><span style="font-size: 24px;"><a href="'+ $(this).attr('href') +'">'+ $(this).attr('description') +'</a><br/></span></font></div><div><br/><br/><br/></div><pre>'+ $(this).attr('extended') + '</pre><div><br/><br/><br/></div><div><hr/></div><div style="text-align: right;"><font color="#6A6A6A"><font face="Georgia"><font size="5"><span style="font-size: 18px;">'+ txtCTags +'</span></font></font></font></div></en-note>' + "\n" + ']]>';	
+        if(tags[j] == ""){
+          tags[j] = "misc";  //empty tag is not acceptable with evernote
+        }
+        txtTags += '<tag>'+ tags[j] +'</tag>';
+    }
+    
+  
+    
+    txtCTags = tags.join(', ');  
+      
+    txtContent += '<![CDATA[<?' + 'xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;"><div><font face="Georgia" size="6"><span style="font-size: 24px;"><a href="'+ $('<div/>').text($(this).attr('href')).html()  +'">'+ $('<div/>').text($(this).attr('description')).html() +'</a><br/></span></font></div><div><br/><br/><br/></div><pre>'+ $('<div/>').text($(this).attr('extended')).html() + '</pre><div><br/><br/><br/></div><div><hr/></div><div style="text-align: right;"><font color="#6A6A6A"><font face="Georgia"><font size="5"><span style="font-size: 18px;">'+ txtCTags +'</span></font></font></font></div></en-note>' + "\n" + ']]>';  
 
-		txt += '<content>' + txtContent + '</content>';
-		
-		time = $(this).attr('time');
-		time = time.replace(/-/g, '');
-		time = time.replace(/:/g, ''); //remove the delimeters
-		txt += '<created>' + time + '</created>';
-		txt += '<updated>' + time + '</updated>';
-		
-		txt += txtTags;
-		txt += '<note-attributes><source-url><![CDATA[' + $(this).attr('href') + ']]></source-url></note-attributes>'; //$(this).attr('href')
-		txt += '</note>'; 
+    txt += '<content>' + txtContent + '</content>';
+    
+    time = $(this).attr('time');
+    time = time.replace(/-/g, '');
+    time = time.replace(/:/g, ''); //remove the delimeters
+    txt += '<created>' + time + '</created>';
+    txt += '<updated>' + time + '</updated>';
+    
+    txt += txtTags;
+    txt += '<note-attributes><source-url><![CDATA[' + $('<div/>').text($(this).attr('href')).html() + ']]></source-url></note-attributes>'; //$(this).attr('href')
+    txt += '</note>'; 
 
-	});
-	txt += '</en-export>';
-	
-	
-	$('#form').hide();	
-	$('#bmarks').show('fast');
-	$('#tenex').val(txt);
+  });
+  txt += '</en-export>';
+  
+  
+  $('#form').hide();  
+  $('#bmarks').show('fast');
+  $('#tenex').val(txt);
 
 }
 
 
 $(document).ready(function(){
-	$('#btnParse').click(parsePls);
+  $('#btnParse').click(parsePls);
 })
-
 
 </script>
 </body></html>
