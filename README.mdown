@@ -3,7 +3,8 @@
 A JS script to parse the exported delicious bookmarks xml to create Evernote 's native notebook export file (.enex)
 
 ##Reference
-http://dr-palaniraja.blogspot.com/2010/12/import-delicious-bookmarks-to-evernote.html
+How-to : refer my  [blog post](http://dr-palaniraja.blogspot.com/2010/12/import-delicious-bookmarks-to-evernote.html "How-to use")
+
 
 
 ###License
